@@ -1,6 +1,4 @@
-# qrxcode
-
-QRX flow discovery SDK.
+# QRX flow discovery SDK
 
 Detect RSS, Atom and JSON Feed flows from normal website and page URLs.
 
@@ -42,9 +40,7 @@ QRX does not replace RSS or existing feed technologies.
 
 QRX helps applications discover and work with them more naturally.
 
-Learn more:
-
-https://qrx.dev
+Learn more at https://qrx.dev
 
 ## Install
 
