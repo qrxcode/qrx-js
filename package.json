@@ -1,7 +1,7 @@
 {
-  "name": "qrxcode",
-  "version": "0.1.0",
-  "description": "QRX flow discovery SDK: scan once, app understands.",
+  "name": "@qrxcode/js",
+  "version": "0.1.1",
+  "description": "QRX flow discovery SDK for JavaScript.",
   "homepage": "https://qrx.dev",
   "repository": {
     "type": "git",

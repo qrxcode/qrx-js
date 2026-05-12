@@ -1,4 +1,4 @@
-# QRX flow discovery SDK
+# QRX flow discovery SDK for JavaScript
 
 Detect RSS, Atom and JSON Feed flows from normal website and page URLs.
 
@@ -45,13 +45,13 @@ Learn more at https://qrx.dev
 ## Install
 
 ```bash
-npm install qrxcode
+npm install @qrxcode/js
 ```
 
 ## Usage
 
 ```js
-import { resolveQRX } from "qrxcode";
+import { resolveQRX } from "@qrxcode/js";
 
 const result = await resolveQRX(
   "https://podnews.net"
