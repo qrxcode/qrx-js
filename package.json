@@ -1,0 +1,51 @@
+{
+  "name": "qrxcode",
+  "version": "0.1.0",
+  "description": "QRX flow discovery SDK: scan once, app understands.",
+  "homepage": "https://qrx.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qrxcode/qrx-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/qrxcode/qrx-js/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "test": "vitest run",
+    "dev": "vitest",
+    "prepublishOnly": "npm run test && npm run build"
+  },
+  "keywords": [
+    "qrx",
+    "qr",
+    "rss",
+    "atom",
+    "jsonfeed",
+    "feed",
+    "podcast",
+    "scanner",
+    "discovery",
+    "directflow"
+  ],
+  "author": "Yeldar Kudaibergen",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "latest",
+    "tsup": "latest",
+    "typescript": "latest",
+    "vitest": "latest"
+  }
+}
