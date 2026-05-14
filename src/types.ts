@@ -1,11 +1,15 @@
+// /src/types.ts
+
 export type FlowType =
   | "rss"
   | "atom"
   | "jsonfeed";
 
 export interface Flow {
-  type: FlowType;
-  url: string;
+  flowType: FlowType;
+  rel: string;
+  href: string;
+  type: string;
 }
 
 export interface QRXResult {

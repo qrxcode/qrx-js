@@ -1,6 +1,6 @@
 # QRX flow discovery SDK for JavaScript
 
-Detect RSS, Atom and JSON Feed flows from normal website and page URLs.
+Detect machine-readable flows from normal website and page URLs.
 
 With QRX, applications with QR scanners can interact with QR codes
 more like browsers interact with links.
@@ -33,14 +33,49 @@ Examples of flows:
 - Atom feeds
 - JSON feeds
 
-At the moment, "flow" is a broad term used by QRX
-to describe machine-readable update streams and feeds.
+In QRX, a "flow" is a recognized machine-readable relationship
+that applications can discover and interact with.
 
 QRX does not replace RSS or existing feed technologies.
 
 QRX helps applications discover and work with them more naturally.
 
 Learn more at https://qrx.dev
+
+## Breaking change in 0.2.0
+
+Version `0.2.0` introduces a breaking cleanup of the flow output model.
+
+Before `0.2.0`, flow objects looked like this:
+
+```js
+{
+  type: "rss",
+  url: "https://example.com/feed.xml"
+}
+````
+
+Starting from `0.2.0`, flow objects look like this:
+
+```js
+{
+  flowType: "rss",
+  rel: "alternate",
+  href: "https://example.com/feed.xml",
+  type: "application/rss+xml"
+}
+```
+
+Migration:
+
+* `flow.type` used to mean QRX flow classification.
+* QRX flow classification is now `flow.flowType`.
+* `flow.type` now means the original HTML/link media type.
+* `flow.url` is now `flow.href`.
+
+QRX now separates QRX flow classification from original web metadata.
+
+QRX discovers recognized flows. Applications decide what to do with them.
 
 ## Install
 
@@ -65,12 +100,16 @@ console.log(result.flows);
 ```js
 [
   {
-    type: "rss",
-    url: "https://podnews.net/rss"
+    flowType: "rss",
+    rel: "alternate",
+    href: "https://podnews.net/rss",
+    type: "application/rss+xml"
   },
   {
-    type: "jsonfeed",
-    url: "https://podnews.net/feed.json"
+    flowType: "jsonfeed",
+    rel: "alternate",
+    href: "https://podnews.net/feed.json",
+    type: "application/feed+json"
   }
 ]
 ```
@@ -110,4 +149,3 @@ QRX does not change QR codes.
 
 With QRX, sources can expose machine-readable flows,
 and applications can understand and interact with them naturally.
-

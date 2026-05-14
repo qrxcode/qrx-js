@@ -1,3 +1,5 @@
+// /src/detect.ts
+
 import type { Flow, FlowType } from "./types";
 
 const FLOW_TYPES: Record<string, FlowType> = {
@@ -21,21 +23,32 @@ export function detectFlows(
     const type = getAttribute(tag, "type");
     const href = getAttribute(tag, "href");
 
-    if (!rel || !type || !href) continue;
+    if (!rel || !type || !href) {
+      continue;
+    }
 
-    if (!rel.includes("alternate")) continue;
+    const normalizedRel = rel.trim();
+    const normalizedType = type.trim().toLowerCase();
 
-    const flowType = FLOW_TYPES[type];
+    if (!hasRel(normalizedRel, "alternate")) {
+      continue;
+    }
 
-    if (!flowType) continue;
+    const flowType = FLOW_TYPES[normalizedType];
+
+    if (!flowType) {
+      continue;
+    }
 
     flows.push({
-      type: flowType,
-      url: new URL(href, sourceUrl).toString()
+      flowType,
+      rel: normalizedRel,
+      href: new URL(href, sourceUrl).toString(),
+      type: normalizedType
     });
   }
 
-  return dedupeFlows(flows);
+  return flows;
 }
 
 function getAttribute(
@@ -43,7 +56,7 @@ function getAttribute(
   attribute: string
 ): string | null {
   const regex = new RegExp(
-    `${attribute}=["']([^"']+)["']`,
+    `${attribute}\\s*=\\s*["']([^"']+)["']`,
     "i"
   );
 
@@ -52,16 +65,12 @@ function getAttribute(
   return match ? match[1] : null;
 }
 
-function dedupeFlows(flows: Flow[]): Flow[] {
-  const seen = new Set<string>();
-
-  return flows.filter((flow) => {
-    const key = `${flow.type}:${flow.url}`;
-
-    if (seen.has(key)) return false;
-
-    seen.add(key);
-
-    return true;
-  });
+function hasRel(
+  rel: string,
+  expected: string
+): boolean {
+  return rel
+    .toLowerCase()
+    .split(/\s+/)
+    .includes(expected);
 }

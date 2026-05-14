@@ -1,6 +1,6 @@
 {
   "name": "@qrxcode/js",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "QRX flow discovery SDK for JavaScript.",
   "homepage": "https://qrx.dev",
   "repository": {
@@ -21,7 +21,11 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
     "test": "vitest run",

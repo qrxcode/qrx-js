@@ -1,10 +1,17 @@
-import type { Flow, FlowType } from "./types";
+// /src/select.ts
 
-export function selectFlows(
+import type {
+  Flow,
+  FlowType
+} from "./types";
+
+export function selectFlowsByFlowType(
   flows: Flow[],
-  preferredTypes: FlowType[]
+  preferredFlowTypes: FlowType[]
 ): Flow[] {
   return flows.filter((flow) =>
-    preferredTypes.includes(flow.type)
+    preferredFlowTypes.includes(
+      flow.flowType
+    )
   );
 }
