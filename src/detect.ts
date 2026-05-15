@@ -29,6 +29,21 @@ export function detectFlows(
 
     const normalizedRel = rel.trim();
     const normalizedType = type.trim().toLowerCase();
+    const resolvedHref = new URL(
+      href,
+      sourceUrl
+    ).toString();
+
+    if (normalizedRel === "qrx") {
+      flows.push({
+        flowType: "qrx",
+        rel: normalizedRel,
+        href: resolvedHref,
+        type: normalizedType
+      });
+
+      continue;
+    }
 
     if (!hasRel(normalizedRel, "alternate")) {
       continue;
@@ -41,7 +56,7 @@ export function detectFlows(
     flows.push({
       flowType: "feed",
       rel: normalizedRel,
-      href: new URL(href, sourceUrl).toString(),
+      href: resolvedHref,
       type: normalizedType
     });
   }

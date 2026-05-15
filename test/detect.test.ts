@@ -25,6 +25,263 @@ describe("detectFlows", () => {
     ]);
   });
 
+  it("detects qrx flow with application/qrx+json", () => {
+    const html = `
+      <html>
+        <head>
+          <link
+            rel="qrx"
+            type="application/qrx+json"
+            href="/qrx.json">
+        </head>
+      </html>
+    `;
+
+    expect(detectFlows(html, "https://example.com")).toEqual([
+      {
+        flowType: "qrx",
+        rel: "qrx",
+        href: "https://example.com/qrx.json",
+        type: "application/qrx+json"
+      }
+    ]);
+  });
+
+  it("detects qrx flow with text/html", () => {
+    const html = `
+      <html>
+        <head>
+          <link
+            rel="qrx"
+            type="text/html"
+            href="/demo.html">
+        </head>
+      </html>
+    `;
+
+    expect(detectFlows(html, "https://example.com")).toEqual([
+      {
+        flowType: "qrx",
+        rel: "qrx",
+        href: "https://example.com/demo.html",
+        type: "text/html"
+      }
+    ]);
+  });
+
+  it("detects qrx flow with application/json", () => {
+    const html = `
+      <html>
+        <head>
+          <link
+            rel="qrx"
+            type="application/json"
+            href="/manifest.json">
+        </head>
+      </html>
+    `;
+
+    expect(detectFlows(html, "https://example.com")).toEqual([
+      {
+        flowType: "qrx",
+        rel: "qrx",
+        href: "https://example.com/manifest.json",
+        type: "application/json"
+      }
+    ]);
+  });
+
+  it("ignores qrx links without explicit type", () => {
+    const html = `
+      <html>
+        <head>
+          <link
+            rel="qrx"
+            href="/qrx.json">
+        </head>
+      </html>
+    `;
+
+    expect(detectFlows(html, "https://example.com")).toEqual([]);
+  });
+
+  it("ignores qrx links without href", () => {
+    const html = `
+      <html>
+        <head>
+          <link
+            rel="qrx"
+            type="application/qrx+json">
+        </head>
+      </html>
+    `;
+
+    expect(detectFlows(html, "https://example.com")).toEqual([]);
+  });
+
+  it("ignores qrx when rel is alternate qrx", () => {
+    const html = `
+      <html>
+        <head>
+          <link
+            rel="alternate qrx"
+            type="text/html"
+            href="/demo.html">
+        </head>
+      </html>
+    `;
+
+    expect(detectFlows(html, "https://example.com")).toEqual([]);
+  });
+
+  it("ignores qrx when rel is qrx something", () => {
+    const html = `
+      <html>
+        <head>
+          <link
+            rel="qrx something"
+            type="application/qrx+json"
+            href="/qrx.json">
+        </head>
+      </html>
+    `;
+
+    expect(detectFlows(html, "https://example.com")).toEqual([]);
+  });
+
+  it("ignores qrx when rel is notqrx", () => {
+    const html = `
+      <html>
+        <head>
+          <link
+            rel="notqrx"
+            type="text/html"
+            href="/demo.html">
+        </head>
+      </html>
+    `;
+
+    expect(detectFlows(html, "https://example.com")).toEqual([]);
+  });
+
+  it("ignores qrx when rel is uppercase QRX", () => {
+    const html = `
+      <html>
+        <head>
+          <link
+            rel="QRX"
+            type="application/qrx+json"
+            href="/qrx.json">
+        </head>
+      </html>
+    `;
+
+    expect(detectFlows(html, "https://example.com")).toEqual([]);
+  });
+
+  it("returns feed and qrx flows in discovery order", () => {
+    const html = `
+      <html>
+        <head>
+          <link
+            rel="alternate"
+            type="application/rss+xml"
+            href="/feed.xml">
+
+          <link
+            rel="qrx"
+            type="application/qrx+json"
+            href="/qrx.json">
+        </head>
+      </html>
+    `;
+
+    expect(detectFlows(html, "https://example.com")).toEqual([
+      {
+        flowType: "feed",
+        rel: "alternate",
+        href: "https://example.com/feed.xml",
+        type: "application/rss+xml"
+      },
+      {
+        flowType: "qrx",
+        rel: "qrx",
+        href: "https://example.com/qrx.json",
+        type: "application/qrx+json"
+      }
+    ]);
+  });
+
+  it("preserves duplicate qrx flows exactly as discovered", () => {
+    const html = `
+      <html>
+        <head>
+          <link rel="qrx" type="application/qrx+json" href="/qrx.json">
+          <link rel="qrx" type="application/qrx+json" href="/qrx.json">
+        </head>
+      </html>
+    `;
+
+    expect(detectFlows(html, "https://example.com")).toEqual([
+      {
+        flowType: "qrx",
+        rel: "qrx",
+        href: "https://example.com/qrx.json",
+        type: "application/qrx+json"
+      },
+      {
+        flowType: "qrx",
+        rel: "qrx",
+        href: "https://example.com/qrx.json",
+        type: "application/qrx+json"
+      }
+    ]);
+  });
+
+  it("resolves qrx href to absolute URL", () => {
+    const html = `
+      <html>
+        <head>
+          <link
+            rel="qrx"
+            type="application/qrx+json"
+            href="./qrx.json">
+        </head>
+      </html>
+    `;
+
+    expect(detectFlows(html, "https://example.com/demo/")).toEqual([
+      {
+        flowType: "qrx",
+        rel: "qrx",
+        href: "https://example.com/demo/qrx.json",
+        type: "application/qrx+json"
+      }
+    ]);
+  });
+
+  it("normalizes qrx type to lowercase", () => {
+    const html = `
+      <html>
+        <head>
+          <link
+            rel="qrx"
+            type="Application/QRX+JSON"
+            href="/qrx.json">
+        </head>
+      </html>
+    `;
+
+    expect(detectFlows(html, "https://example.com")).toEqual([
+      {
+        flowType: "qrx",
+        rel: "qrx",
+        href: "https://example.com/qrx.json",
+        type: "application/qrx+json"
+      }
+    ]);
+  });
+
   it("detects Atom feed flow from HTML head", () => {
     const html = `
       <html>
@@ -128,7 +385,7 @@ describe("detectFlows", () => {
     expect(detectFlows(html, "https://example.com")).toEqual([]);
   });
 
-  it("ignores unsupported MIME types", () => {
+  it("ignores unsupported feed MIME types", () => {
     const html = `
       <html>
         <head>
@@ -169,7 +426,7 @@ describe("detectFlows", () => {
     expect(detectFlows(html, "https://example.com")).toEqual([]);
   });
 
-  it("matches alternate when rel has multiple values", () => {
+  it("matches alternate when rel has multiple values for feed detection", () => {
     const html = `
       <html>
         <head>
@@ -208,7 +465,7 @@ describe("detectFlows", () => {
     expect(flows[0].rel).toBe("something alternate other");
   });
 
-  it("matches rel values case-insensitively", () => {
+  it("matches feed rel values case-insensitively", () => {
     const html = `
       <html>
         <head>
@@ -230,7 +487,7 @@ describe("detectFlows", () => {
     ]);
   });
 
-  it("normalizes link type to lowercase", () => {
+  it("normalizes feed type to lowercase", () => {
     const html = `
       <html>
         <head>
@@ -362,7 +619,7 @@ describe("detectFlows", () => {
     ]);
   });
 
-  it("preserves duplicate flows exactly as discovered", () => {
+  it("preserves duplicate feed flows exactly as discovered", () => {
     const html = `
       <html>
         <head>
@@ -388,7 +645,7 @@ describe("detectFlows", () => {
     ]);
   });
 
-  it("does not return old 0.1.x API shape", () => {
+  it("does not return old API shape", () => {
     const html = `
       <html>
         <head>
@@ -406,34 +663,14 @@ describe("detectFlows", () => {
     expect(flow.type).not.toBe("rss");
   });
 
-  it("does not return old 0.2.0 protocol-specific flowType values", () => {
-    const html = `
-      <html>
-        <head>
-          <link rel="alternate" type="application/rss+xml" href="/feed.xml">
-          <link rel="alternate" type="application/atom+xml" href="/atom.xml">
-          <link rel="alternate" type="application/feed+json" href="/feed.json">
-        </head>
-      </html>
-    `;
-
-    const flows = detectFlows(html, "https://example.com");
-
-    expect(
-      flows.some((flow) =>
-        ["rss", "atom", "jsonfeed"].includes(flow.flowType)
-      )
-    ).toBe(false);
-  });
-
-  it("returns the 0.3.0 API shape", () => {
+  it("returns the current API shape", () => {
     const html = `
       <html>
         <head>
           <link
-            rel="alternate"
-            type="application/rss+xml"
-            href="/feed.xml">
+            rel="qrx"
+            type="application/qrx+json"
+            href="/qrx.json">
         </head>
       </html>
     `;
@@ -446,8 +683,5 @@ describe("detectFlows", () => {
       "href",
       "type"
     ]);
-
-    expect(flow.flowType).toBe("feed");
-    expect(flow.type).toBe("application/rss+xml");
   });
 });

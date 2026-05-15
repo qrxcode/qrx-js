@@ -16,7 +16,7 @@ beforeAll(async () => {
       req: IncomingMessage,
       res: ServerResponse
     ) => {
-      if (req.url === "/rss") {
+      if (req.url === "/feed") {
         res.writeHead(200, {
           "Content-Type": "text/html"
         });
@@ -28,6 +28,25 @@ beforeAll(async () => {
                 rel="alternate"
                 type="application/rss+xml"
                 href="/feed.xml">
+            </head>
+          </html>
+        `);
+
+        return;
+      }
+
+      if (req.url === "/qrx") {
+        res.writeHead(200, {
+          "Content-Type": "text/html"
+        });
+
+        res.end(`
+          <html>
+            <head>
+              <link
+                rel="qrx"
+                type="application/qrx+json"
+                href="/qrx.json">
             </head>
           </html>
         `);
@@ -49,14 +68,9 @@ beforeAll(async () => {
                 href="/feed.xml">
 
               <link
-                rel="alternate"
-                type="application/atom+xml"
-                href="/atom.xml">
-
-              <link
-                rel="alternate"
-                type="application/feed+json"
-                href="/feed.json">
+                rel="qrx"
+                type="application/qrx+json"
+                href="/qrx.json">
             </head>
           </html>
         `);
@@ -73,14 +87,14 @@ beforeAll(async () => {
           <html>
             <head>
               <link
-                rel="alternate"
-                type="application/rss+xml"
-                href="/feed.xml">
+                rel="qrx"
+                type="application/qrx+json"
+                href="/qrx.json">
 
               <link
-                rel="alternate"
-                type="application/rss+xml"
-                href="/feed.xml">
+                rel="qrx"
+                type="application/qrx+json"
+                href="/qrx.json">
             </head>
           </html>
         `);
@@ -88,7 +102,7 @@ beforeAll(async () => {
         return;
       }
 
-      if (req.url === "/unsupported") {
+      if (req.url === "/invalid-qrx") {
         res.writeHead(200, {
           "Content-Type": "text/html"
         });
@@ -97,21 +111,27 @@ beforeAll(async () => {
           <html>
             <head>
               <link
-                rel="alternate"
-                href="/feed.xml">
+                rel="qrx"
+                href="/qrx.json">
 
               <link
-                rel="alternate"
-                type="text/html"
-                href="/print">
+                rel="qrx"
+                type="application/qrx+json">
 
               <link
-                type="application/rss+xml"
-                href="/feed.xml">
+                rel="alternate qrx"
+                type="application/qrx+json"
+                href="/qrx.json">
 
               <link
-                rel="alternate"
-                type="application/rss+xml">
+                rel="qrx something"
+                type="application/qrx+json"
+                href="/qrx.json">
+
+              <link
+                rel="notqrx"
+                type="application/qrx+json"
+                href="/qrx.json">
             </head>
           </html>
         `);
@@ -176,9 +196,9 @@ describe("resolveQRX", () => {
     expect(typeof resolveQRX).toBe("function");
   });
 
-  it("fetches a page and returns RSS as a feed flow", async () => {
+  it("fetches a page and returns feed flows", async () => {
     const result = await resolveQRX(
-      `${baseUrl}/rss`
+      `${baseUrl}/feed`
     );
 
     expect(result).toEqual({
@@ -193,16 +213,24 @@ describe("resolveQRX", () => {
     });
   });
 
-  it("returns top-level flows array", async () => {
+  it("fetches a page and returns qrx flows", async () => {
     const result = await resolveQRX(
-      `${baseUrl}/rss`
+      `${baseUrl}/qrx`
     );
 
-    expect(result).toHaveProperty("flows");
-    expect(Array.isArray(result.flows)).toBe(true);
+    expect(result).toEqual({
+      flows: [
+        {
+          flowType: "qrx",
+          rel: "qrx",
+          href: `${baseUrl}/qrx.json`,
+          type: "application/qrx+json"
+        }
+      ]
+    });
   });
 
-  it("returns multiple feed flows in discovery order", async () => {
+  it("returns feed and qrx flows in discovery order", async () => {
     const result = await resolveQRX(
       `${baseUrl}/multiple`
     );
@@ -216,22 +244,16 @@ describe("resolveQRX", () => {
           type: "application/rss+xml"
         },
         {
-          flowType: "feed",
-          rel: "alternate",
-          href: `${baseUrl}/atom.xml`,
-          type: "application/atom+xml"
-        },
-        {
-          flowType: "feed",
-          rel: "alternate",
-          href: `${baseUrl}/feed.json`,
-          type: "application/feed+json"
+          flowType: "qrx",
+          rel: "qrx",
+          href: `${baseUrl}/qrx.json`,
+          type: "application/qrx+json"
         }
       ]
     });
   });
 
-  it("preserves duplicate feed flows", async () => {
+  it("preserves duplicate qrx flows", async () => {
     const result = await resolveQRX(
       `${baseUrl}/duplicates`
     );
@@ -239,18 +261,28 @@ describe("resolveQRX", () => {
     expect(result).toEqual({
       flows: [
         {
-          flowType: "feed",
-          rel: "alternate",
-          href: `${baseUrl}/feed.xml`,
-          type: "application/rss+xml"
+          flowType: "qrx",
+          rel: "qrx",
+          href: `${baseUrl}/qrx.json`,
+          type: "application/qrx+json"
         },
         {
-          flowType: "feed",
-          rel: "alternate",
-          href: `${baseUrl}/feed.xml`,
-          type: "application/rss+xml"
+          flowType: "qrx",
+          rel: "qrx",
+          href: `${baseUrl}/qrx.json`,
+          type: "application/qrx+json"
         }
       ]
+    });
+  });
+
+  it("ignores invalid qrx declarations", async () => {
+    const result = await resolveQRX(
+      `${baseUrl}/invalid-qrx`
+    );
+
+    expect(result).toEqual({
+      flows: []
     });
   });
 
@@ -264,39 +296,12 @@ describe("resolveQRX", () => {
     });
   });
 
-  it("does not guess or return unsupported links", async () => {
+  it("returns top-level flows array", async () => {
     const result = await resolveQRX(
-      `${baseUrl}/unsupported`
+      `${baseUrl}/feed`
     );
 
-    expect(result).toEqual({
-      flows: []
-    });
-  });
-
-  it("does not return old flow.url field", async () => {
-    const result = await resolveQRX(
-      `${baseUrl}/rss`
-    );
-
-    expect(result.flows[0]).not.toHaveProperty("url");
-  });
-
-  it("does not use old protocol-specific flowType values", async () => {
-    const result = await resolveQRX(
-      `${baseUrl}/multiple`
-    );
-
-    expect(
-      result.flows.some((flow) =>
-        ["rss", "atom", "jsonfeed"].includes(flow.flowType)
-      )
-    ).toBe(false);
-
-    expect(
-      result.flows.every((flow) =>
-        flow.flowType === "feed"
-      )
-    ).toBe(true);
+    expect(result).toHaveProperty("flows");
+    expect(Array.isArray(result.flows)).toBe(true);
   });
 });

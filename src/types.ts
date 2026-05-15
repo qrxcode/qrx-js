@@ -1,6 +1,8 @@
 // /src/types.ts
 
-export type FlowType = "feed";
+export type FlowType =
+  | "feed"
+  | "qrx";
 
 export interface Flow {
   flowType: FlowType;

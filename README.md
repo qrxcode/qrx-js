@@ -30,6 +30,7 @@ and natural as following someone on social media.
 Examples of flows:
 
 - Feed flows
+- QRX flows
 
 In QRX, a "flow" is a recognized machine-readable relationship
 that applications can discover and interact with.
@@ -42,7 +43,7 @@ Learn more at https://qrx.dev
 
 ## Breaking change in 0.3.0
 
-Version `0.3.0` introduces a breaking cleanup of feed flow classification.
+Version `0.3.0` introduced a breaking cleanup of feed flow classification.
 
 Before `0.3.0`, RSS, Atom, and JSON Feed were represented as separate
 QRX flow types:
@@ -91,6 +92,56 @@ Migration:
 
 QRX discovers recognized flows. Applications decide what to do with them.
 
+## New in 0.4.0
+
+Version `0.4.0` adds a new flow category:
+
+```js
+flowType: "qrx"
+```
+
+A QRX flow is discovered from an explicit HTML `<link>` declaration:
+
+```html
+<link
+  rel="qrx"
+  type="application/qrx+json"
+  href="/qrx.json">
+```
+
+QRX flow discovery requires all of these:
+
+* `rel="qrx"`
+* `href`
+* explicit `type`
+
+For `qrx` flows, `rel` must be exactly `qrx`.
+
+These are valid:
+
+```html
+<link rel="qrx" type="application/qrx+json" href="/qrx.json">
+<link rel="qrx" type="text/html" href="/demo.html">
+<link rel="qrx" type="application/json" href="/manifest.json">
+```
+
+These are not valid QRX flow declarations:
+
+```html
+<link rel="alternate qrx" type="application/qrx+json" href="/qrx.json">
+<link rel="qrx something" type="application/qrx+json" href="/qrx.json">
+<link rel="notqrx" type="application/qrx+json" href="/qrx.json">
+<link rel="qrx" href="/qrx.json">
+```
+
+The `type` value can be any explicit media type, not only
+`application/qrx+json`.
+
+The package does not fetch or parse QRX payloads. It only discovers the
+declared flow.
+
+Applications decide what to do with discovered QRX flows.
+
 ## Install
 
 ```bash
@@ -103,7 +154,7 @@ npm install @qrxcode/js
 import { resolveQRX } from "@qrxcode/js";
 
 const result = await resolveQRX(
-  "https://podnews.net"
+  "https://example.com"
 );
 
 console.log(result.flows);
@@ -116,14 +167,14 @@ console.log(result.flows);
   {
     flowType: "feed",
     rel: "alternate",
-    href: "https://podnews.net/rss",
+    href: "https://example.com/feed.xml",
     type: "application/rss+xml"
   },
   {
-    flowType: "feed",
-    rel: "alternate",
-    href: "https://podnews.net/feed.json",
-    type: "application/feed+json"
+    flowType: "qrx",
+    rel: "qrx",
+    href: "https://example.com/qrx.json",
+    type: "application/qrx+json"
   }
 ]
 ```
@@ -139,7 +190,7 @@ import {
 } from "@qrxcode/js";
 
 const result = await resolveQRX(
-  "https://podnews.net"
+  "https://example.com"
 );
 
 const feeds = selectFlowsByFlowType(
@@ -160,29 +211,19 @@ const rssFeeds = result.flows.filter(
 );
 ```
 
-To select only Atom feeds:
+To select QRX flows:
 
 ```js
-const atomFeeds = result.flows.filter(
-  (discoveredFlow) =>
-    discoveredFlow.flowType === "feed" &&
-    discoveredFlow.type === "application/atom+xml"
-);
-```
-
-To select only JSON Feed feeds:
-
-```js
-const jsonFeeds = result.flows.filter(
-  (discoveredFlow) =>
-    discoveredFlow.flowType === "feed" &&
-    discoveredFlow.type === "application/feed+json"
+const qrxFlows = selectFlowsByFlowType(
+  result.flows,
+  ["qrx"]
 );
 ```
 
 ## Supported flow types
 
 * feed
+* qrx
 
 ## Supported feed formats
 
@@ -191,6 +232,8 @@ const jsonFeeds = result.flows.filter(
 * JSON Feed: `application/feed+json`
 
 ## Supported discovery methods
+
+Feed flow:
 
 ```html
 <link
@@ -211,6 +254,15 @@ const jsonFeeds = result.flows.filter(
   rel="alternate"
   type="application/feed+json"
   href="/feed.json">
+```
+
+QRX flow:
+
+```html
+<link
+  rel="qrx"
+  type="application/qrx+json"
+  href="/qrx.json">
 ```
 
 ## Philosophy
