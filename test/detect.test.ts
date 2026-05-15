@@ -20,7 +20,8 @@ describe("detectFlows", () => {
         flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.xml",
-        type: "application/rss+xml"
+        type: "application/rss+xml",
+        source: "html"
       }
     ]);
   });
@@ -42,7 +43,8 @@ describe("detectFlows", () => {
         flowType: "qrx",
         rel: "qrx",
         href: "https://example.com/qrx.json",
-        type: "application/qrx+json"
+        type: "application/qrx+json",
+        source: "html"
       }
     ]);
   });
@@ -64,7 +66,8 @@ describe("detectFlows", () => {
         flowType: "qrx",
         rel: "qrx",
         href: "https://example.com/demo.html",
-        type: "text/html"
+        type: "text/html",
+        source: "html"
       }
     ]);
   });
@@ -86,7 +89,8 @@ describe("detectFlows", () => {
         flowType: "qrx",
         rel: "qrx",
         href: "https://example.com/manifest.json",
-        type: "application/json"
+        type: "application/json",
+        source: "html"
       }
     ]);
   });
@@ -201,13 +205,15 @@ describe("detectFlows", () => {
         flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.xml",
-        type: "application/rss+xml"
+        type: "application/rss+xml",
+        source: "html"
       },
       {
         flowType: "qrx",
         rel: "qrx",
         href: "https://example.com/qrx.json",
-        type: "application/qrx+json"
+        type: "application/qrx+json",
+        source: "html"
       }
     ]);
   });
@@ -227,13 +233,15 @@ describe("detectFlows", () => {
         flowType: "qrx",
         rel: "qrx",
         href: "https://example.com/qrx.json",
-        type: "application/qrx+json"
+        type: "application/qrx+json",
+        source: "html"
       },
       {
         flowType: "qrx",
         rel: "qrx",
         href: "https://example.com/qrx.json",
-        type: "application/qrx+json"
+        type: "application/qrx+json",
+        source: "html"
       }
     ]);
   });
@@ -255,7 +263,8 @@ describe("detectFlows", () => {
         flowType: "qrx",
         rel: "qrx",
         href: "https://example.com/demo/qrx.json",
-        type: "application/qrx+json"
+        type: "application/qrx+json",
+        source: "html"
       }
     ]);
   });
@@ -277,7 +286,8 @@ describe("detectFlows", () => {
         flowType: "qrx",
         rel: "qrx",
         href: "https://example.com/qrx.json",
-        type: "application/qrx+json"
+        type: "application/qrx+json",
+        source: "html"
       }
     ]);
   });
@@ -299,7 +309,8 @@ describe("detectFlows", () => {
         flowType: "feed",
         rel: "alternate",
         href: "https://example.com/atom.xml",
-        type: "application/atom+xml"
+        type: "application/atom+xml",
+        source: "html"
       }
     ]);
   });
@@ -321,7 +332,8 @@ describe("detectFlows", () => {
         flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.json",
-        type: "application/feed+json"
+        type: "application/feed+json",
+        source: "html"
       }
     ]);
   });
@@ -342,19 +354,22 @@ describe("detectFlows", () => {
         flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.xml",
-        type: "application/rss+xml"
+        type: "application/rss+xml",
+        source: "html"
       },
       {
         flowType: "feed",
         rel: "alternate",
         href: "https://example.com/atom.xml",
-        type: "application/atom+xml"
+        type: "application/atom+xml",
+        source: "html"
       },
       {
         flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.json",
-        type: "application/feed+json"
+        type: "application/feed+json",
+        source: "html"
       }
     ]);
   });
@@ -443,7 +458,8 @@ describe("detectFlows", () => {
         flowType: "feed",
         rel: "something alternate other",
         href: "https://example.com/feed.xml",
-        type: "application/rss+xml"
+        type: "application/rss+xml",
+        source: "html"
       }
     ]);
   });
@@ -482,7 +498,8 @@ describe("detectFlows", () => {
         flowType: "feed",
         rel: "Alternate",
         href: "https://example.com/feed.xml",
-        type: "application/rss+xml"
+        type: "application/rss+xml",
+        source: "html"
       }
     ]);
   });
@@ -504,7 +521,8 @@ describe("detectFlows", () => {
         flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.xml",
-        type: "application/rss+xml"
+        type: "application/rss+xml",
+        source: "html"
       }
     ]);
   });
@@ -526,7 +544,8 @@ describe("detectFlows", () => {
         flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.xml",
-        type: "application/rss+xml"
+        type: "application/rss+xml",
+        source: "html"
       }
     ]);
   });
@@ -548,7 +567,8 @@ describe("detectFlows", () => {
         flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.xml",
-        type: "application/rss+xml"
+        type: "application/rss+xml",
+        source: "html"
       }
     ]);
   });
@@ -570,7 +590,8 @@ describe("detectFlows", () => {
         flowType: "feed",
         rel: "alternate",
         href: "https://example.com/blog/feed.xml",
-        type: "application/rss+xml"
+        type: "application/rss+xml",
+        source: "html"
       }
     ]);
   });
@@ -592,7 +613,8 @@ describe("detectFlows", () => {
         flowType: "feed",
         rel: "alternate",
         href: "https://example.com/blog/feed.xml",
-        type: "application/rss+xml"
+        type: "application/rss+xml",
+        source: "html"
       }
     ]);
   });
@@ -614,7 +636,8 @@ describe("detectFlows", () => {
         flowType: "feed",
         rel: "alternate",
         href: "https://cdn.example.com/feed.xml",
-        type: "application/rss+xml"
+        type: "application/rss+xml",
+        source: "html"
       }
     ]);
   });
@@ -634,13 +657,15 @@ describe("detectFlows", () => {
         flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.xml",
-        type: "application/rss+xml"
+        type: "application/rss+xml",
+        source: "html"
       },
       {
         flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.xml",
-        type: "application/rss+xml"
+        type: "application/rss+xml",
+        source: "html"
       }
     ]);
   });
@@ -681,7 +706,8 @@ describe("detectFlows", () => {
       "flowType",
       "rel",
       "href",
-      "type"
+      "type",
+      "source"
     ]);
   });
 });

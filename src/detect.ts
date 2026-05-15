@@ -1,6 +1,6 @@
 // /src/detect.ts
 
-import type { Flow } from "./types";
+import type { Flow, FlowSource } from "./types";
 
 const FEED_TYPES = new Set([
   "application/rss+xml",
@@ -22,7 +22,7 @@ export function detectFlows(
 
   return candidates
     .map((candidate) =>
-      detectFlowCandidate(candidate, sourceUrl)
+      detectFlowCandidate(candidate, sourceUrl, "html")
     )
     .filter((flow): flow is Flow => flow !== null);
 }
@@ -39,14 +39,15 @@ export function detectFlowsFromLinkHeader(
 
   return candidates
     .map((candidate) =>
-      detectFlowCandidate(candidate, sourceUrl)
+      detectFlowCandidate(candidate, sourceUrl, "http")
     )
     .filter((flow): flow is Flow => flow !== null);
 }
 
 export function detectFlowCandidate(
   candidate: LinkCandidate,
-  sourceUrl: string
+  sourceUrl: string,
+  source: FlowSource
 ): Flow | null {
   const { rel, type, href } = candidate;
 
@@ -74,7 +75,8 @@ export function detectFlowCandidate(
       flowType: "qrx",
       rel: normalizedRel,
       href: resolvedHref,
-      type: type.trim().toLowerCase()
+      type: type.trim().toLowerCase(),
+      source
     };
   }
 
@@ -96,7 +98,8 @@ export function detectFlowCandidate(
     flowType: "feed",
     rel: normalizedRel,
     href: resolvedHref,
-    type: normalizedType
+    type: normalizedType,
+    source
   };
 }
 

@@ -299,7 +299,8 @@ describe("resolveQRX", () => {
           flowType: "feed",
           rel: "alternate",
           href: `${baseUrl}/feed.xml`,
-          type: "application/rss+xml"
+          type: "application/rss+xml",
+          source: "html"
         }
       ]
     });
@@ -316,7 +317,8 @@ describe("resolveQRX", () => {
           flowType: "qrx",
           rel: "qrx",
           href: `${baseUrl}/qrx.json`,
-          type: "application/qrx+json"
+          type: "application/qrx+json",
+          source: "html"
         }
       ]
     });
@@ -333,13 +335,15 @@ describe("resolveQRX", () => {
           flowType: "feed",
           rel: "alternate",
           href: `${baseUrl}/feed.xml`,
-          type: "application/rss+xml"
+          type: "application/rss+xml",
+          source: "html"
         },
         {
           flowType: "qrx",
           rel: "qrx",
           href: `${baseUrl}/qrx.json`,
-          type: "application/qrx+json"
+          type: "application/qrx+json",
+          source: "html"
         }
       ]
     });
@@ -356,13 +360,15 @@ describe("resolveQRX", () => {
           flowType: "qrx",
           rel: "qrx",
           href: `${baseUrl}/qrx.json`,
-          type: "application/qrx+json"
+          type: "application/qrx+json",
+          source: "html"
         },
         {
           flowType: "qrx",
           rel: "qrx",
           href: `${baseUrl}/qrx.json`,
-          type: "application/qrx+json"
+          type: "application/qrx+json",
+          source: "html"
         }
       ]
     });
@@ -389,7 +395,8 @@ describe("resolveQRX", () => {
           flowType: "qrx",
           rel: "qrx",
           href: `${baseUrl}/demo/`,
-          type: "text/html"
+          type: "text/html",
+          source: "http"
         }
       ]
     });
@@ -406,7 +413,8 @@ describe("resolveQRX", () => {
           flowType: "feed",
           rel: "alternate",
           href: `${baseUrl}/feed.xml`,
-          type: "application/rss+xml"
+          type: "application/rss+xml",
+          source: "http"
         }
       ]
     });
@@ -423,13 +431,15 @@ describe("resolveQRX", () => {
           flowType: "qrx",
           rel: "qrx",
           href: `${baseUrl}/demo/`,
-          type: "text/html"
+          type: "text/html",
+          source: "http"
         },
         {
           flowType: "feed",
           rel: "alternate",
           href: `${baseUrl}/feed.xml`,
-          type: "application/rss+xml"
+          type: "application/rss+xml",
+          source: "http"
         }
       ]
     });
@@ -446,13 +456,15 @@ describe("resolveQRX", () => {
           flowType: "qrx",
           rel: "qrx",
           href: `${baseUrl}/header-qrx`,
-          type: "text/html"
+          type: "text/html",
+          source: "http"
         },
         {
           flowType: "qrx",
           rel: "qrx",
           href: `${baseUrl}/html-qrx.json`,
-          type: "application/qrx+json"
+          type: "application/qrx+json",
+          source: "html"
         }
       ]
     });
@@ -469,13 +481,15 @@ describe("resolveQRX", () => {
           flowType: "qrx",
           rel: "qrx",
           href: `${baseUrl}/demo/`,
-          type: "text/html"
+          type: "text/html",
+          source: "http"
         },
         {
           flowType: "qrx",
           rel: "qrx",
           href: `${baseUrl}/demo/`,
-          type: "text/html"
+          type: "text/html",
+          source: "html"
         }
       ]
     });

@@ -82,13 +82,15 @@ describe("resolveQRX", () => {
             flowType: "qrx",
             rel: "qrx",
             href: `${baseUrl}/header-qrx`,
-            type: "text/html"
+            type: "text/html",
+            source: "http"
           },
           {
             flowType: "qrx",
             rel: "qrx",
             href: `${baseUrl}/html-qrx.json`,
-            type: "application/qrx+json"
+            type: "application/qrx+json",
+            source: "html"
           }
         ]
       });
@@ -127,13 +129,15 @@ describe("resolveQRX", () => {
             flowType: "qrx",
             rel: "qrx",
             href: `${baseUrl}/demo/`,
-            type: "text/html"
+            type: "text/html",
+            source: "http"
           },
           {
             flowType: "qrx",
             rel: "qrx",
             href: `${baseUrl}/demo/`,
-            type: "text/html"
+            type: "text/html",
+            source: "html"
           }
         ]
       });

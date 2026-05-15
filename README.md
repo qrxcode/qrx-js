@@ -178,6 +178,36 @@ both flows are returned.
 QRX discovers recognized flows.
 Applications decide what to do with them.
 
+## New in 0.6.0
+
+Version `0.6.0` adds source tracking.
+
+Every discovered flow now includes where it was discovered from:
+
+* `source: "http"` for HTTP `Link` response headers
+* `source: "html"` for HTML `<link>` declarations
+
+Example:
+
+```js
+{
+  flowType: "qrx",
+  rel: "qrx",
+  href: "https://example.com/qrx.json",
+  type: "application/qrx+json",
+  source: "http"
+}
+```
+
+HTTP flows are still returned before HTML flows.
+
+This is deterministic discovery order only.
+
+It is not ranking, priority, override, trust scoring, or deduplication.
+
+QRX discovers recognized flows.
+Applications decide what to do with them.
+
 ## Install
 
 ```bash
@@ -204,19 +234,22 @@ console.log(result.flows);
     flowType: "qrx",
     rel: "qrx",
     href: "https://example.com/qrx-demo/",
-    type: "text/html"
+    type: "text/html",
+    source: "http"
   },
   {
     flowType: "feed",
     rel: "alternate",
     href: "https://example.com/feed.xml",
-    type: "application/rss+xml"
+    type: "application/rss+xml",
+    source: "http"
   },
   {
     flowType: "qrx",
     rel: "qrx",
     href: "https://example.com/qrx.json",
-    type: "application/qrx+json"
+    type: "application/qrx+json",
+    source: "html"
   }
 ]
 ```
@@ -284,10 +317,34 @@ Feed flow from HTML:
   href="/feed.xml">
 ```
 
+Result:
+
+```js
+{
+  flowType: "feed",
+  rel: "alternate",
+  href: "https://example.com/feed.xml",
+  type: "application/rss+xml",
+  source: "html"
+}
+```
+
 Feed flow from HTTP:
 
 ```http
 Link: </feed.xml>; rel="alternate"; type="application/rss+xml"
+```
+
+Result:
+
+```js
+{
+  flowType: "feed",
+  rel: "alternate",
+  href: "https://example.com/feed.xml",
+  type: "application/rss+xml",
+  source: "http"
+}
 ```
 
 QRX flow from HTML:
@@ -299,10 +356,34 @@ QRX flow from HTML:
   href="/qrx.json">
 ```
 
+Result:
+
+```js
+{
+  flowType: "qrx",
+  rel: "qrx",
+  href: "https://example.com/qrx.json",
+  type: "application/qrx+json",
+  source: "html"
+}
+```
+
 QRX flow from HTTP:
 
 ```http
 Link: </qrx-demo/>; rel="qrx"; type="text/html"
+```
+
+Result:
+
+```js
+{
+  flowType: "qrx",
+  rel: "qrx",
+  href: "https://example.com/qrx-demo/",
+  type: "text/html",
+  source: "http"
+}
 ```
 
 ## Philosophy
