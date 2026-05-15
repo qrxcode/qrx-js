@@ -18,8 +18,13 @@ QRX works with:
 A normal QR code still contains a normal URL.
 
 QRX-compatible applications resolve the URL,
-discover machine-readable flows from the HTML `<head>`,
+discover machine-readable flows,
 and let the application decide what to do next.
+
+Discovery currently supports:
+
+- HTML `<link>` declarations
+- HTTP `Link` response headers
 
 This works especially well with podcast websites,
 because many podcast sites already expose one or multiple feeds.
@@ -100,7 +105,7 @@ Version `0.4.0` adds a new flow category:
 flowType: "qrx"
 ```
 
-A QRX flow is discovered from an explicit HTML `<link>` declaration:
+A QRX flow is discovered from an explicit HTML declaration:
 
 ```html
 <link
@@ -121,7 +126,7 @@ These are valid:
 
 ```html
 <link rel="qrx" type="application/qrx+json" href="/qrx.json">
-<link rel="qrx" type="text/html" href="/demo.html">
+<link rel="qrx" type="text/html" href="/qrx-demo.html">
 <link rel="qrx" type="application/json" href="/manifest.json">
 ```
 
@@ -141,6 +146,37 @@ The package does not fetch or parse QRX payloads. It only discovers the
 declared flow.
 
 Applications decide what to do with discovered QRX flows.
+
+## New in 0.5.0
+
+Version `0.5.0` adds public HTTP `Link` header discovery.
+
+QRX can now discover flows from:
+
+* HTML `<link>` tags
+* HTTP `Link` response headers
+
+Example:
+
+```http
+Link: </qrx-demo/>; rel="qrx"; type="text/html"
+```
+
+HTTP `Link` header discovery lets a server expose QRX flows
+at the HTTP layer,
+without placing the QRX declaration inside the HTML source.
+
+HTTP header flows are returned before HTML flows.
+
+This is deterministic discovery order only.
+
+It is not ranking, priority, override, or deduplication.
+
+If the same flow appears in both HTTP headers and HTML,
+both flows are returned.
+
+QRX discovers recognized flows.
+Applications decide what to do with them.
 
 ## Install
 
@@ -164,6 +200,12 @@ console.log(result.flows);
 
 ```js
 [
+  {
+    flowType: "qrx",
+    rel: "qrx",
+    href: "https://example.com/qrx-demo/",
+    type: "text/html"
+  },
   {
     flowType: "feed",
     rel: "alternate",
@@ -233,7 +275,7 @@ const qrxFlows = selectFlowsByFlowType(
 
 ## Supported discovery methods
 
-Feed flow:
+Feed flow from HTML:
 
 ```html
 <link
@@ -242,27 +284,25 @@ Feed flow:
   href="/feed.xml">
 ```
 
-```html
-<link
-  rel="alternate"
-  type="application/atom+xml"
-  href="/atom.xml">
+Feed flow from HTTP:
+
+```http
+Link: </feed.xml>; rel="alternate"; type="application/rss+xml"
 ```
 
-```html
-<link
-  rel="alternate"
-  type="application/feed+json"
-  href="/feed.json">
-```
-
-QRX flow:
+QRX flow from HTML:
 
 ```html
 <link
   rel="qrx"
   type="application/qrx+json"
   href="/qrx.json">
+```
+
+QRX flow from HTTP:
+
+```http
+Link: </qrx-demo/>; rel="qrx"; type="text/html"
 ```
 
 ## Philosophy

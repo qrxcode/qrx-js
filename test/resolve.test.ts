@@ -139,6 +139,98 @@ beforeAll(async () => {
         return;
       }
 
+      if (req.url === "/header-qrx") {
+        res.writeHead(200, {
+          "Content-Type": "text/html",
+          Link:
+            '</demo/>; rel="qrx"; type="text/html"'
+        });
+
+        res.end(`
+          <html>
+            <head></head>
+          </html>
+        `);
+
+        return;
+      }
+
+      if (req.url === "/header-feed") {
+        res.writeHead(200, {
+          "Content-Type": "text/html",
+          Link:
+            '</feed.xml>; rel="alternate"; type="application/rss+xml"'
+        });
+
+        res.end(`
+          <html>
+            <head></head>
+          </html>
+        `);
+
+        return;
+      }
+
+      if (req.url === "/header-multiple") {
+        res.writeHead(200, {
+          "Content-Type": "text/html",
+          Link: [
+            '</demo/>; rel="qrx"; type="text/html"',
+            '</feed.xml>; rel="alternate"; type="application/rss+xml"'
+          ].join(", ")
+        });
+
+        res.end(`
+          <html>
+            <head></head>
+          </html>
+        `);
+
+        return;
+      }
+
+      if (req.url === "/header-and-html") {
+        res.writeHead(200, {
+          "Content-Type": "text/html",
+          Link:
+            '</header-qrx>; rel="qrx"; type="text/html"'
+        });
+
+        res.end(`
+          <html>
+            <head>
+              <link
+                rel="qrx"
+                type="application/qrx+json"
+                href="/html-qrx.json">
+            </head>
+          </html>
+        `);
+
+        return;
+      }
+
+      if (req.url === "/header-duplicates") {
+        res.writeHead(200, {
+          "Content-Type": "text/html",
+          Link:
+            '</demo/>; rel="qrx"; type="text/html"'
+        });
+
+        res.end(`
+          <html>
+            <head>
+              <link
+                rel="qrx"
+                type="text/html"
+                href="/demo/">
+            </head>
+          </html>
+        `);
+
+        return;
+      }
+
       if (req.url === "/empty") {
         res.writeHead(200, {
           "Content-Type": "text/html"
@@ -283,6 +375,109 @@ describe("resolveQRX", () => {
 
     expect(result).toEqual({
       flows: []
+    });
+  });
+
+  it("detects qrx flow from HTTP Link header", async () => {
+    const result = await resolveQRX(
+      `${baseUrl}/header-qrx`
+    );
+
+    expect(result).toEqual({
+      flows: [
+        {
+          flowType: "qrx",
+          rel: "qrx",
+          href: `${baseUrl}/demo/`,
+          type: "text/html"
+        }
+      ]
+    });
+  });
+
+  it("detects feed flow from HTTP Link header", async () => {
+    const result = await resolveQRX(
+      `${baseUrl}/header-feed`
+    );
+
+    expect(result).toEqual({
+      flows: [
+        {
+          flowType: "feed",
+          rel: "alternate",
+          href: `${baseUrl}/feed.xml`,
+          type: "application/rss+xml"
+        }
+      ]
+    });
+  });
+
+  it("detects multiple HTTP Link header flows in order", async () => {
+    const result = await resolveQRX(
+      `${baseUrl}/header-multiple`
+    );
+
+    expect(result).toEqual({
+      flows: [
+        {
+          flowType: "qrx",
+          rel: "qrx",
+          href: `${baseUrl}/demo/`,
+          type: "text/html"
+        },
+        {
+          flowType: "feed",
+          rel: "alternate",
+          href: `${baseUrl}/feed.xml`,
+          type: "application/rss+xml"
+        }
+      ]
+    });
+  });
+
+  it("returns HTTP header flows before HTML flows", async () => {
+    const result = await resolveQRX(
+      `${baseUrl}/header-and-html`
+    );
+
+    expect(result).toEqual({
+      flows: [
+        {
+          flowType: "qrx",
+          rel: "qrx",
+          href: `${baseUrl}/header-qrx`,
+          type: "text/html"
+        },
+        {
+          flowType: "qrx",
+          rel: "qrx",
+          href: `${baseUrl}/html-qrx.json`,
+          type: "application/qrx+json"
+        }
+      ]
+    });
+  });
+
+  it("preserves duplicate flows between HTTP header and HTML", async () => {
+    const result = await resolveQRX(
+      `${baseUrl}/header-duplicates`
+    );
+
+    expect(result).toEqual({
+      flows: [
+        {
+          flowType: "qrx",
+          rel: "qrx",
+          href: `${baseUrl}/demo/`,
+          type: "text/html"
+        },
+        {
+          flowType: "qrx",
+          rel: "qrx",
+          href: `${baseUrl}/demo/`,
+          type: "text/html"
+        }
+      ]
     });
   });
 

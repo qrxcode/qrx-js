@@ -1,6 +1,9 @@
 // src/resolve.ts
 
-import { detectFlows } from "./detect";
+import {
+  detectFlows,
+  detectFlowsFromLinkHeader
+} from "./detect";
 
 import type { QRXResult } from "./types";
 
@@ -9,14 +12,24 @@ export async function resolveQRX(
 ): Promise<QRXResult> {
   const response = await fetch(url);
 
+  const sourceUrl = response.url;
+
+  const headerFlows = detectFlowsFromLinkHeader(
+    response.headers.get("link"),
+    sourceUrl
+  );
+
   const html = await response.text();
 
-  const flows = detectFlows(
+  const htmlFlows = detectFlows(
     html,
-    response.url
+    sourceUrl
   );
 
   return {
-    flows
+    flows: [
+      ...headerFlows,
+      ...htmlFlows
+    ]
   };
 }
