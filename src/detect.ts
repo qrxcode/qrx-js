@@ -1,12 +1,12 @@
 // /src/detect.ts
 
-import type { Flow, FlowType } from "./types";
+import type { Flow } from "./types";
 
-const FLOW_TYPES: Record<string, FlowType> = {
-  "application/rss+xml": "rss",
-  "application/atom+xml": "atom",
-  "application/feed+json": "jsonfeed"
-};
+const FEED_TYPES = new Set([
+  "application/rss+xml",
+  "application/atom+xml",
+  "application/feed+json"
+]);
 
 export function detectFlows(
   html: string,
@@ -34,14 +34,12 @@ export function detectFlows(
       continue;
     }
 
-    const flowType = FLOW_TYPES[normalizedType];
-
-    if (!flowType) {
+    if (!FEED_TYPES.has(normalizedType)) {
       continue;
     }
 
     flows.push({
-      flowType,
+      flowType: "feed",
       rel: normalizedRel,
       href: new URL(href, sourceUrl).toString(),
       type: normalizedType

@@ -176,7 +176,7 @@ describe("resolveQRX", () => {
     expect(typeof resolveQRX).toBe("function");
   });
 
-  it("fetches a page and returns RSS flows using the new API shape", async () => {
+  it("fetches a page and returns RSS as a feed flow", async () => {
     const result = await resolveQRX(
       `${baseUrl}/rss`
     );
@@ -184,7 +184,7 @@ describe("resolveQRX", () => {
     expect(result).toEqual({
       flows: [
         {
-          flowType: "rss",
+          flowType: "feed",
           rel: "alternate",
           href: `${baseUrl}/feed.xml`,
           type: "application/rss+xml"
@@ -202,7 +202,7 @@ describe("resolveQRX", () => {
     expect(Array.isArray(result.flows)).toBe(true);
   });
 
-  it("returns multiple flows in discovery order", async () => {
+  it("returns multiple feed flows in discovery order", async () => {
     const result = await resolveQRX(
       `${baseUrl}/multiple`
     );
@@ -210,19 +210,19 @@ describe("resolveQRX", () => {
     expect(result).toEqual({
       flows: [
         {
-          flowType: "rss",
+          flowType: "feed",
           rel: "alternate",
           href: `${baseUrl}/feed.xml`,
           type: "application/rss+xml"
         },
         {
-          flowType: "atom",
+          flowType: "feed",
           rel: "alternate",
           href: `${baseUrl}/atom.xml`,
           type: "application/atom+xml"
         },
         {
-          flowType: "jsonfeed",
+          flowType: "feed",
           rel: "alternate",
           href: `${baseUrl}/feed.json`,
           type: "application/feed+json"
@@ -231,7 +231,7 @@ describe("resolveQRX", () => {
     });
   });
 
-  it("preserves duplicate flows", async () => {
+  it("preserves duplicate feed flows", async () => {
     const result = await resolveQRX(
       `${baseUrl}/duplicates`
     );
@@ -239,13 +239,13 @@ describe("resolveQRX", () => {
     expect(result).toEqual({
       flows: [
         {
-          flowType: "rss",
+          flowType: "feed",
           rel: "alternate",
           href: `${baseUrl}/feed.xml`,
           type: "application/rss+xml"
         },
         {
-          flowType: "rss",
+          flowType: "feed",
           rel: "alternate",
           href: `${baseUrl}/feed.xml`,
           type: "application/rss+xml"
@@ -282,13 +282,21 @@ describe("resolveQRX", () => {
     expect(result.flows[0]).not.toHaveProperty("url");
   });
 
-  it("does not use old type-as-flow-classification shape", async () => {
+  it("does not use old protocol-specific flowType values", async () => {
     const result = await resolveQRX(
-      `${baseUrl}/rss`
+      `${baseUrl}/multiple`
     );
 
-    expect(result.flows[0].type).not.toBe("rss");
-    expect(result.flows[0].flowType).toBe("rss");
-    expect(result.flows[0].type).toBe("application/rss+xml");
+    expect(
+      result.flows.some((flow) =>
+        ["rss", "atom", "jsonfeed"].includes(flow.flowType)
+      )
+    ).toBe(false);
+
+    expect(
+      result.flows.every((flow) =>
+        flow.flowType === "feed"
+      )
+    ).toBe(true);
   });
 });

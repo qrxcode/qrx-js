@@ -1,9 +1,6 @@
 // /src/types.ts
 
-export type FlowType =
-  | "rss"
-  | "atom"
-  | "jsonfeed";
+export type FlowType = "feed";
 
 export interface Flow {
   flowType: FlowType;

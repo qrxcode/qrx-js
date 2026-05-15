@@ -29,9 +29,7 @@ and natural as following someone on social media.
 
 Examples of flows:
 
-- RSS feeds
-- Atom feeds
-- JSON feeds
+- Feed flows
 
 In QRX, a "flow" is a recognized machine-readable relationship
 that applications can discover and interact with.
@@ -42,20 +40,12 @@ QRX helps applications discover and work with them more naturally.
 
 Learn more at https://qrx.dev
 
-## Breaking change in 0.2.0
+## Breaking change in 0.3.0
 
-Version `0.2.0` introduces a breaking cleanup of the flow output model.
+Version `0.3.0` introduces a breaking cleanup of feed flow classification.
 
-Before `0.2.0`, flow objects looked like this:
-
-```js
-{
-  type: "rss",
-  url: "https://example.com/feed.xml"
-}
-````
-
-Starting from `0.2.0`, flow objects look like this:
+Before `0.3.0`, RSS, Atom, and JSON Feed were represented as separate
+QRX flow types:
 
 ```js
 {
@@ -64,16 +54,40 @@ Starting from `0.2.0`, flow objects look like this:
   href: "https://example.com/feed.xml",
   type: "application/rss+xml"
 }
+````
+
+Starting from `0.3.0`, RSS, Atom, and JSON Feed are represented as the same
+QRX flow category:
+
+```js
+{
+  flowType: "feed",
+  rel: "alternate",
+  href: "https://example.com/feed.xml",
+  type: "application/rss+xml"
+}
+```
+
+The actual feed format remains in the original HTML/link media type:
+
+```js
+type: "application/rss+xml"
+type: "application/atom+xml"
+type: "application/feed+json"
+```
+
+Core formula:
+
+```txt
+flowType = QRX category
+type = original web/media format
 ```
 
 Migration:
 
-* `flow.type` used to mean QRX flow classification.
-* QRX flow classification is now `flow.flowType`.
-* `flow.type` now means the original HTML/link media type.
-* `flow.url` is now `flow.href`.
-
-QRX now separates QRX flow classification from original web metadata.
+* `flow.flowType === "rss"` is now `flow.flowType === "feed" && flow.type === "application/rss+xml"`.
+* `flow.flowType === "atom"` is now `flow.flowType === "feed" && flow.type === "application/atom+xml"`.
+* `flow.flowType === "jsonfeed"` is now `flow.flowType === "feed" && flow.type === "application/feed+json"`.
 
 QRX discovers recognized flows. Applications decide what to do with them.
 
@@ -100,13 +114,13 @@ console.log(result.flows);
 ```js
 [
   {
-    flowType: "rss",
+    flowType: "feed",
     rel: "alternate",
     href: "https://podnews.net/rss",
     type: "application/rss+xml"
   },
   {
-    flowType: "jsonfeed",
+    flowType: "feed",
     rel: "alternate",
     href: "https://podnews.net/feed.json",
     type: "application/feed+json"
@@ -114,11 +128,67 @@ console.log(result.flows);
 ]
 ```
 
+## Selecting flows
+
+To select all feed flows:
+
+```js
+import {
+  resolveQRX,
+  selectFlowsByFlowType
+} from "@qrxcode/js";
+
+const result = await resolveQRX(
+  "https://podnews.net"
+);
+
+const feeds = selectFlowsByFlowType(
+  result.flows,
+  ["feed"]
+);
+```
+
+This returns RSS, Atom, and JSON Feed flows together.
+
+To select only RSS feeds, filter by the original media type:
+
+```js
+const rssFeeds = result.flows.filter(
+  (discoveredFlow) =>
+    discoveredFlow.flowType === "feed" &&
+    discoveredFlow.type === "application/rss+xml"
+);
+```
+
+To select only Atom feeds:
+
+```js
+const atomFeeds = result.flows.filter(
+  (discoveredFlow) =>
+    discoveredFlow.flowType === "feed" &&
+    discoveredFlow.type === "application/atom+xml"
+);
+```
+
+To select only JSON Feed feeds:
+
+```js
+const jsonFeeds = result.flows.filter(
+  (discoveredFlow) =>
+    discoveredFlow.flowType === "feed" &&
+    discoveredFlow.type === "application/feed+json"
+);
+```
+
 ## Supported flow types
 
-* RSS
-* Atom
-* JSON Feed
+* feed
+
+## Supported feed formats
+
+* RSS: `application/rss+xml`
+* Atom: `application/atom+xml`
+* JSON Feed: `application/feed+json`
 
 ## Supported discovery methods
 
@@ -146,6 +216,10 @@ console.log(result.flows);
 ## Philosophy
 
 QRX does not change QR codes.
+
+QRX discovers recognized flows.
+
+Applications decide what to do with them.
 
 With QRX, sources can expose machine-readable flows,
 and applications can understand and interact with them naturally.

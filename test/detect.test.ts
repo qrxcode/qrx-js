@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { detectFlows } from "../src/detect";
 
 describe("detectFlows", () => {
-  it("detects RSS flow from HTML head", () => {
+  it("detects RSS feed flow from HTML head", () => {
     const html = `
       <html>
         <head>
@@ -17,7 +17,7 @@ describe("detectFlows", () => {
 
     expect(detectFlows(html, "https://example.com")).toEqual([
       {
-        flowType: "rss",
+        flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.xml",
         type: "application/rss+xml"
@@ -25,7 +25,7 @@ describe("detectFlows", () => {
     ]);
   });
 
-  it("detects Atom flow from HTML head", () => {
+  it("detects Atom feed flow from HTML head", () => {
     const html = `
       <html>
         <head>
@@ -39,7 +39,7 @@ describe("detectFlows", () => {
 
     expect(detectFlows(html, "https://example.com")).toEqual([
       {
-        flowType: "atom",
+        flowType: "feed",
         rel: "alternate",
         href: "https://example.com/atom.xml",
         type: "application/atom+xml"
@@ -61,7 +61,7 @@ describe("detectFlows", () => {
 
     expect(detectFlows(html, "https://example.com")).toEqual([
       {
-        flowType: "jsonfeed",
+        flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.json",
         type: "application/feed+json"
@@ -69,7 +69,7 @@ describe("detectFlows", () => {
     ]);
   });
 
-  it("returns multiple recognized flows in discovery order", () => {
+  it("returns multiple recognized feed flows in discovery order", () => {
     const html = `
       <html>
         <head>
@@ -82,19 +82,19 @@ describe("detectFlows", () => {
 
     expect(detectFlows(html, "https://example.com")).toEqual([
       {
-        flowType: "rss",
+        flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.xml",
         type: "application/rss+xml"
       },
       {
-        flowType: "atom",
+        flowType: "feed",
         rel: "alternate",
         href: "https://example.com/atom.xml",
         type: "application/atom+xml"
       },
       {
-        flowType: "jsonfeed",
+        flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.json",
         type: "application/feed+json"
@@ -183,7 +183,7 @@ describe("detectFlows", () => {
 
     expect(detectFlows(html, "https://example.com")).toEqual([
       {
-        flowType: "rss",
+        flowType: "feed",
         rel: "something alternate other",
         href: "https://example.com/feed.xml",
         type: "application/rss+xml"
@@ -208,6 +208,28 @@ describe("detectFlows", () => {
     expect(flows[0].rel).toBe("something alternate other");
   });
 
+  it("matches rel values case-insensitively", () => {
+    const html = `
+      <html>
+        <head>
+          <link
+            rel="Alternate"
+            type="application/rss+xml"
+            href="/feed.xml">
+        </head>
+      </html>
+    `;
+
+    expect(detectFlows(html, "https://example.com")).toEqual([
+      {
+        flowType: "feed",
+        rel: "Alternate",
+        href: "https://example.com/feed.xml",
+        type: "application/rss+xml"
+      }
+    ]);
+  });
+
   it("normalizes link type to lowercase", () => {
     const html = `
       <html>
@@ -222,7 +244,29 @@ describe("detectFlows", () => {
 
     expect(detectFlows(html, "https://example.com")).toEqual([
       {
-        flowType: "rss",
+        flowType: "feed",
+        rel: "alternate",
+        href: "https://example.com/feed.xml",
+        type: "application/rss+xml"
+      }
+    ]);
+  });
+
+  it("supports single-quoted attributes", () => {
+    const html = `
+      <html>
+        <head>
+          <link
+            rel='alternate'
+            type='application/rss+xml'
+            href='/feed.xml'>
+        </head>
+      </html>
+    `;
+
+    expect(detectFlows(html, "https://example.com")).toEqual([
+      {
+        flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.xml",
         type: "application/rss+xml"
@@ -244,7 +288,7 @@ describe("detectFlows", () => {
 
     expect(detectFlows(html, "https://example.com/blog/")).toEqual([
       {
-        flowType: "rss",
+        flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.xml",
         type: "application/rss+xml"
@@ -266,7 +310,7 @@ describe("detectFlows", () => {
 
     expect(detectFlows(html, "https://example.com/blog/")).toEqual([
       {
-        flowType: "rss",
+        flowType: "feed",
         rel: "alternate",
         href: "https://example.com/blog/feed.xml",
         type: "application/rss+xml"
@@ -288,7 +332,7 @@ describe("detectFlows", () => {
 
     expect(detectFlows(html, "https://example.com/blog/")).toEqual([
       {
-        flowType: "rss",
+        flowType: "feed",
         rel: "alternate",
         href: "https://example.com/blog/feed.xml",
         type: "application/rss+xml"
@@ -310,7 +354,7 @@ describe("detectFlows", () => {
 
     expect(detectFlows(html, "https://example.com")).toEqual([
       {
-        flowType: "rss",
+        flowType: "feed",
         rel: "alternate",
         href: "https://cdn.example.com/feed.xml",
         type: "application/rss+xml"
@@ -330,13 +374,13 @@ describe("detectFlows", () => {
 
     expect(detectFlows(html, "https://example.com")).toEqual([
       {
-        flowType: "rss",
+        flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.xml",
         type: "application/rss+xml"
       },
       {
-        flowType: "rss",
+        flowType: "feed",
         rel: "alternate",
         href: "https://example.com/feed.xml",
         type: "application/rss+xml"
@@ -344,7 +388,7 @@ describe("detectFlows", () => {
     ]);
   });
 
-  it("does not return old API shape", () => {
+  it("does not return old 0.1.x API shape", () => {
     const html = `
       <html>
         <head>
@@ -362,7 +406,27 @@ describe("detectFlows", () => {
     expect(flow.type).not.toBe("rss");
   });
 
-  it("returns the new API shape", () => {
+  it("does not return old 0.2.0 protocol-specific flowType values", () => {
+    const html = `
+      <html>
+        <head>
+          <link rel="alternate" type="application/rss+xml" href="/feed.xml">
+          <link rel="alternate" type="application/atom+xml" href="/atom.xml">
+          <link rel="alternate" type="application/feed+json" href="/feed.json">
+        </head>
+      </html>
+    `;
+
+    const flows = detectFlows(html, "https://example.com");
+
+    expect(
+      flows.some((flow) =>
+        ["rss", "atom", "jsonfeed"].includes(flow.flowType)
+      )
+    ).toBe(false);
+  });
+
+  it("returns the 0.3.0 API shape", () => {
     const html = `
       <html>
         <head>
@@ -382,49 +446,8 @@ describe("detectFlows", () => {
       "href",
       "type"
     ]);
+
+    expect(flow.flowType).toBe("feed");
+    expect(flow.type).toBe("application/rss+xml");
   });
-
-  it("matches rel values case-insensitively", () => {
-  const html = `
-    <html>
-      <head>
-        <link
-          rel="Alternate"
-          type="application/rss+xml"
-          href="/feed.xml">
-      </head>
-    </html>
-  `;
-
-  expect(detectFlows(html, "https://example.com")).toEqual([
-    {
-      flowType: "rss",
-      rel: "Alternate",
-      href: "https://example.com/feed.xml",
-      type: "application/rss+xml"
-    }
-  ]);
-});
-
-it("supports single-quoted attributes", () => {
-  const html = `
-    <html>
-      <head>
-        <link
-          rel='alternate'
-          type='application/rss+xml'
-          href='/feed.xml'>
-      </head>
-    </html>
-  `;
-
-  expect(detectFlows(html, "https://example.com")).toEqual([
-    {
-      flowType: "rss",
-      rel: "alternate",
-      href: "https://example.com/feed.xml",
-      type: "application/rss+xml"
-    }
-  ]);
-});
 });

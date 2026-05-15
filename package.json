@@ -1,6 +1,6 @@
 {
   "name": "@qrxcode/js",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "QRX flow discovery SDK for JavaScript.",
   "homepage": "https://qrx.dev",
   "repository": {
